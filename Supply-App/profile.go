@@ -49,15 +49,6 @@ var profile = map[string]Config{
 		MSPID:        "HQMSP",
 	},
 
-	"factory2": {
-		CertPath:     "../SC-Network/organizations/peerOrganizations/factory.supplychain.com/users/User2@factory.supplychain.com/msp/signcerts/cert.pem",
-		KeyDirectory: "../SC-Network/organizations/peerOrganizations/factory.supplychain.com/users/User2@factory.supplychain.com/msp/keystore/",
-		TLSCertPath:  "../SC-Network/organizations/peerOrganizations/factory.supplychain.com/peers/peer0.factory.supplychain.com/tls/ca.crt",
-		PeerEndpoint: "localhost:7051",
-		GatewayPeer:  "peer0.factory.supplychain.com",
-		MSPID:        "FactoryMSP",
-	},
-
 	"minifab-factory": {
 		CertPath:     "../Minifab_Network/vars/keyfiles/peerOrganizations/factory.supplychain.com/users/Admin@factory.supplychain.com/msp/signcerts/Admin@factory.supplychain.com-cert.pem",
 		KeyDirectory: "../Minifab_Network/vars/keyfiles/peerOrganizations/factory.supplychain.com/users/Admin@factory.supplychain.com/msp/keystore/",

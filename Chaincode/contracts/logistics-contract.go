@@ -104,7 +104,6 @@ func (l *LogisticsContract) TransferBatch(ctx contractapi.TransactionContextInte
 	return "batch transferred and status updated", nil
 }
 
-
 func (l *LogisticsContract) GetRouteInfo(ctx contractapi.TransactionContextInterface, batchID string) (*RouteInfo, error) {
 	clientOrgID, err := ctx.GetClientIdentity().GetMSPID()
 	if err != nil {

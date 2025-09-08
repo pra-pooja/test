@@ -66,32 +66,6 @@ func (h *HQContract) GetBatchesWithPagination(ctx contractapi.TransactionContext
 	}, nil
 }
 
-// func (h *HQContract) GetBatchesWithPagination(ctx contractapi.TransactionContextInterface, field string, value string, pageSize int32, bookmark string) ([]*BatchPublic, error) {
-// 	// Build a flexible query string
-// 	queryString := fmt.Sprintf(`{"selector":{"%s":"%s"}}`, field, value)
-
-// 	resultsIterator, responseMetadata, err := ctx.GetStub().GetQueryResultWithPagination(queryString, pageSize, bookmark)
-// 	if err != nil {
-// 		return nil, fmt.Errorf("could not get paginated query results: %v", err)
-// 	}
-// 	defer resultsIterator.Close()
-
-// 	var results []*BatchPublic
-// 	for resultsIterator.HasNext() {
-// 		queryResponse, err := resultsIterator.Next()
-// 		if err != nil {
-// 			return nil, fmt.Errorf("failed to iterate results: %v", err)
-// 		}
-
-// 		var batch BatchPublic
-// 		if err := json.Unmarshal(queryResponse.Value, &batch); err == nil {
-// 			results = append(results, &batch)
-// 		}
-// 	}
-
-// 	return results, responseMetadata.Bookmark
-// }
-
 func (h *HQContract) QueryFactoryBatchesByStatus(ctx contractapi.TransactionContextInterface, status string) ([]*BatchPublic, error) {
 	clientOrgID, err := ctx.GetClientIdentity().GetMSPID()
 	if err != nil {
