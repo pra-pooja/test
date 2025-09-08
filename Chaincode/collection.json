@@ -1,0 +1,28 @@
+[
+    {
+      "name": "pdcFactoryHQ",
+      "policy": "OR('FactoryMSP.member','HQMSP.member')",
+      "requiredPeerCount": 1,
+      "maxPeerCount": 1,
+      "blockToLive": 0,
+      "memberOnlyRead": true
+    },
+
+  {
+    "name": "pdcLogisticsHQ",
+    "policy": "OR('LogisticsMSP.member','HQMSP.member')",
+    "requiredPeerCount": 1,
+    "maxPeerCount": 1,
+    "blockToLive": 0,
+    "memberOnlyRead": true
+  },
+  {
+    "name": "pdcDepotHQ",
+    "policy": "OR('DepotMSP.member','HQMSP.member')",
+    "requiredPeerCount": 1,
+    "maxPeerCount": 1,
+    "blockToLive": 0,
+    "memberOnlyRead": true
+  }
+  ]
+  

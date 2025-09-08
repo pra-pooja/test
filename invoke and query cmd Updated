@@ -1,0 +1,39 @@
+#CreateBatch
+echo -n "Composition: Powder,Explosives" | base64
+echo -n "Inspection: Passed" | base64
+echo -n "Serials: 1001-1009" | base64
+
+peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.supplychain.com --tls --cafile $ORDERER_CA -C $CHANNEL_NAME -n Supply-Chain --peerAddresses localhost:7051 --tlsRootCertFiles $FACTORY_PEER_TLSROOTCERT --peerAddresses localhost:9051 --tlsRootCertFiles $LOGISTICS_PEER_TLSROOTCERT --peerAddresses localhost:11051 --tlsRootCertFiles $DEPOT_PEER_TLSROOTCERT --peerAddresses localhost:12051 --tlsRootCertFiles $HQ_PEER_TLSROOTCERT -c '{"function":"CreateBatch","Args":["BATCH-AMMO-003","5.62mm Mortar Shells","1000","2025-06-15","2035-06-15","CREATED"]}' --transient '{"composition":"Q29tcG9zaXRpb246IFBvd2RlcixFeHBsb3NpdmVz","inspection":"SW5zcGVjdGlvbjogUGFzc2Vk","serials":"U2VyaWFsczogMTAwMS0xMDA5"}'
+
+peer chaincode query -o localhost:7050 --ordererTLSHostnameOverride orderer.supplychain.com --tls --cafile $ORDERER_CA -C $CHANNEL_NAME -n Supply-Chain --peerAddresses localhost:7051 --tlsRootCertFiles $FACTORY_PEER_TLSROOTCERT -c '{"function":"ReadBatchBoth","Args":["BATCH-AMMO-003"]}'
+
+
+export COMPOSITION=$(echo -n "Composition: Powder,Explosives" | base64 | tr -d \\n)
+export INSPECTION=$(echo -n "Inspection: Passed" | base64 | tr -d \\n)
+export SERIALS=$(echo -n "Serials: 1001-1009" | base64 | tr -d \\n)
+
+peer chaincode invoke \
+  -o localhost:7050 \
+  --ordererTLSHostnameOverride orderer.supplychain.com \
+  --tls --cafile $ORDERER_CA \
+  -C $CHANNEL_NAME \
+  -n supplychain \
+  --peerAddresses localhost:7051 --tlsRootCertFiles $FACTORY_PEER_TLSROOTCERT \
+  --peerAddresses localhost:9051 --tlsRootCertFiles $LOGISTICS_PEER_TLSROOTCERT \
+  --peerAddresses localhost:11051 --tlsRootCertFiles $DEPOT_PEER_TLSROOTCERT \
+  --peerAddresses localhost:12051 --tlsRootCertFiles $HQ_PEER_TLSROOTCERT \
+  -c '{"function":"CreateBatch","Args":["BATCH-AMMO-003","5.62mm Mortar Shells","1000","2025-06-15","2035-06-15","CREATED"]}' \
+  --transient "{\"composition\":\"$COMPOSITION\",\"inspection\":\"$INSPECTION\",\"serials\":\"$SERIALS\"}"
+
+
+peer chaincode invoke   -o localhost:7050   --ordererTLSHostnameOverride orderer.supplychain.com   --tls --cafile $ORDERER_CA   -C $CHANNEL_NAME   -n supplychain -c '{"function":"CreateBatch","Args":["BATCH-AMMO-002","5.62mm Mortar Shells","1200","2025-06-15","2040-06-15","CREATED"]}'   --transient "{\"composition\":\"$COMPOSITION\",\"inspection\":\"$INSPECTION\",\"serials\":\"$SERIALS\"}"
+
+
+export ROUTE=$(echo -n "Route-A" | base64 | tr -d \\n)
+export CONVOY=$(echo -n "CONVOY-101" | base64 | tr -d \\n)
+export TRANSPORTER=$(echo -n "Transporter Alpha" | base64 | tr -d \\n)
+
+
+peer chaincode invoke   -o localhost:7050   --ordererTLSHostnameOverride orderer.supplychain.com   --tls   --cafile "$ORDERER_CA"   -C "$CHANNEL_NAME"   -n supplychain   --peerAddresses localhost:7051 --tlsRootCertFiles "$FACTORY_PEER_TLSROOTCERT"   --peerAddresses localhost:9051 --tlsRootCertFiles "$LOGISTICS_PEER_TLSROOTCERT"   --peerAddresses localhost:11051 --tlsRootCertFiles "$DEPOT_PEER_TLSROOTCERT"   --peerAddresses localhost:12051 --tlsRootCertFiles "$HQ_PEER_TLSROOTCERT"   -c '{"function":"LogisticsContract:TransferBatch","Args":["Batch-001","FactoryMSP","DepotMSP"]}'   --transient "{\"route\":\"$ROUTE\",\"convoyId\":\"$CONVOY\",\"transporter\":\"$TRANSPORTER\"}"
+
+

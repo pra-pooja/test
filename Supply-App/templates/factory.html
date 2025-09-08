@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Batch Management</title>
+  <style>
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #74ebd5, #9face6);
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 40px;
+    }
+
+    .container {
+      background: #fff;
+      padding: 30px 40px;
+      border-radius: 15px;
+      box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.15);
+      width: 420px;
+      margin: 20px;
+      animation: fadeIn 0.8s ease-in-out;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      color: #333;
+      text-align: center;
+    }
+
+    form {
+      text-align: left;
+    }
+
+    label {
+      font-weight: 600;
+      margin-top: 12px;
+      display: block;
+      color: #444;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px 12px;
+      margin-top: 6px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: all 0.3s;
+    }
+
+    input:focus {
+      border-color: #6c63ff;
+      outline: none;
+      box-shadow: 0 0 6px rgba(108, 99, 255, 0.3);
+    }
+
+    button {
+      margin-top: 15px;
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #6c63ff, #3a2fc7);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+      transition: transform 0.2s, background 0.3s;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      background: linear-gradient(135deg, #5a52e0, #2a1ea1);
+    }
+
+    pre {
+      background: #f7f7f7;
+      padding: 12px;
+      margin-top: 20px;
+      border-radius: 10px;
+      text-align: left;
+      font-size: 13px;
+      color: #444;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Create Batch Form -->
+  <div class="container">
+    <h2>Create Batch</h2>
+    <form id="batchForm">
+      <label>Batch ID</label>
+      <input type="text" name="BatchID" required />
+
+      <label>Type</label>
+      <input type="text" name="Type" required />
+
+      <label>Quantity</label>
+      <input type="number" name="Quantity" required />
+
+      <label>Manufacture Date</label>
+      <input type="date" name="ManufactureDate" required />
+
+      <label>Expiry Date</label>
+      <input type="date" name="ExpiryDate" required />
+
+      <label>Status</label>
+      <input type="text" name="Status" required />
+
+      <label>Composition</label>
+      <input type="text" name="Composition" required />
+
+      <label>Inspection</label>
+      <input type="text" name="Inspection" required />
+
+      <label>Serials</label>
+      <input type="text" name="Serials" required />
+
+      <button type="button" onclick="submitBatch()">Submit</button>
+    </form>
+
+  </div>
+
+  <!-- Query Batch Form -->
+  <div class="container">
+    <h2>Query Batch</h2>
+    <form id="readForm">
+      <label>Enter Batch ID</label>
+      <input id="batchIdInput" type="text" required />
+
+      <button type="submit" onclick="readData(event)">Query Batch</button>
+      <button type="reset">Clear</button>
+    </form>
+  </div>
+
+  <script src="/public/scripts/app.js"></script>
+
+</body>
+</html>
+<!-- <!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Create Batch</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    form {
+      max-width: 400px;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      margin-top: 15px;
+      padding: 10px 15px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #218838;
+    }
+    pre {
+      background: #f8f8f8;
+      padding: 10px;
+      margin-top: 20px;
+      border-radius: 6px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+  </style>
+</head>
+<body>
+  <h2>Create Batch</h2>
+  <form id="batchForm">
+    <input type="text" name="BatchID" placeholder="Batch ID" required />
+    <input type="text" name="Type" placeholder="Type" required />
+    <input type="number" name="Quantity" placeholder="Quantity" required />
+    <input type="date" name="ManufactureDate" placeholder="Manufacture Date" required />
+    <input type="date" name="ExpiryDate" placeholder="Expiry Date" required />
+    <input type="text" name="Status" placeholder="Status" required />
+    <input type="text" name="Composition" placeholder="Composition" required />
+    <input type="text" name="Inspection" placeholder="Inspection" required />
+    <input type="text" name="Serials" placeholder="Serials" required />
+    <button type="submit">Submit</button>
+  </form>
+
+  <h3>Response:</h3>
+  <pre id="output">Waiting for submission...</pre>
+
+  <script>
+    document.getElementById("batchForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
+
+      const data = {
+        BatchID: this.BatchID.value,
+        Type: this.Type.value,
+        Quantity: parseInt(this.Quantity.value),
+        ManufactureDate: this.ManufactureDate.value,
+        ExpiryDate: this.ExpiryDate.value,
+        Status: this.Status.value,
+        Composition: this.Composition.value,
+        Inspection: this.Inspection.value,
+        Serials: this.Serials.value
+      };
+
+      try {
+        const response = await fetch("/api/batch", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+          const errText = await response.text();
+          document.getElementById("output").textContent = "Error: " + errText;
+          return;
+        }
+
+        const result = await response.json();
+        document.getElementById("output").textContent = JSON.stringify(result, null, 2);
+      } catch (err) {
+        document.getElementById("output").textContent = "Fetch error: " + err;
+      }
+    });
+  </script>
+</body>
+</html> -->
