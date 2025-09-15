@@ -1,32 +1,30 @@
-##Blockchain-Based Ammunition Supply Chain Traceability
+## Steps to run the project:
+1. Execute the following commands in the terminal:
 
-A secure and transparent system for tracking ammunition batches across the supply chain using Hyperledger Fabric. The solution ensures traceability, prevents counterfeiting, and enables HQ oversight without exposing sensitive data.
-
-##Steps to run the project:
-1. Execute the follwoing commands in the terminal:
-
-#"-----------Register the ca admin for each organization—----------------
+#### ------------Register the ca admin for each organization------------------
+```bash
 docker compose -f docker/docker-compose-ca.yaml up -d
-
 sudo chmod -R 777 organizations/
-
-#------------Register and enroll the users for each organization—-----------
+```
+#### -------------------Register and enroll the users for each organization----------------
+```bash
 chmod +x registerEnroll.sh
 ./registerEnroll.sh
-
-#—-------------Build the infrastructure—-----------------
-
+```
+#### ---------------Build the infrastructure-----------------------
+```bash
 docker compose -f docker/docker-compose-4org.yaml up -d
-
-#-------------Generate the genesis block—-------------------------------
-
+```
+#### --------------------------Generate the genesis block------------------------
+```bash
 export FABRIC_CFG_PATH=${PWD}/config
 
 export CHANNEL_NAME=supplychannel
 
 configtxgen -profile SupplyChainChannel -outputBlock ${PWD}/channel-artifacts/${CHANNEL_NAME}.block -channelID $CHANNEL_NAME
-
-#----- Create the application channel----
+```
+#### ----------------Create the application channel-------------------
+```bash
 export ORDERER_CA=${PWD}/organizations/ordererOrganizations/supplychain.com/orderers/orderer.supplychain.com/msp/tlscacerts/tlsca.supplychain.com-cert.pem
 
 export ORDERER_ADMIN_TLS_SIGN_CERT=${PWD}/organizations/ordererOrganizations/supplychain.com/orderers/orderer.supplychain.com/tls/server.crt
@@ -36,10 +34,10 @@ export ORDERER_ADMIN_TLS_PRIVATE_KEY=${PWD}/organizations/ordererOrganizations/s
 osnadmin channel join --channelID $CHANNEL_NAME --config-block ${PWD}/channel-artifacts/$CHANNEL_NAME.block -o localhost:7053 --ca-file $ORDERER_CA --client-cert $ORDERER_ADMIN_TLS_SIGN_CERT --client-key $ORDERER_ADMIN_TLS_PRIVATE_KEY
 
 osnadmin channel list -o localhost:7053 --ca-file $ORDERER_CA --client-cert $ORDERER_ADMIN_TLS_SIGN_CERT --client-key $ORDERER_ADMIN_TLS_PRIVATE_KEY
+```
 
 **************** peer0_Factory terminal ********************
-***Build the core.yaml in peercfg folder
-
+```bash
 export FABRIC_CFG_PATH=./peercfg
 export CHANNEL_NAME=supplychannel
 export CORE_PEER_LOCALMSPID=FactoryMSP
@@ -52,15 +50,15 @@ export FACTORY_PEER_TLSROOTCERT=${PWD}/organizations/peerOrganizations/factory.s
 export LOGISTICS_PEER_TLSROOTCERT=${PWD}/organizations/peerOrganizations/logistics.supplychain.com/peers/peer0.logistics.supplychain.com/tls/ca.crt
 export DEPOT_PEER_TLSROOTCERT=${PWD}/organizations/peerOrganizations/depot.supplychain.com/peers/peer0.depot.supplychain.com/tls/ca.crt
 export HQ_PEER_TLSROOTCERT=${PWD}/organizations/peerOrganizations/HQ.supplychain.com/peers/peer0.HQ.supplychain.com/tls/ca.crt
-
-—---------------Join peer to the channel—-------------
-
+```
+#### —---------------Join peer to the channel—-------------
+```bash
 peer channel join -b ./channel-artifacts/$CHANNEL_NAME.block
 
 peer channel list
-
-#—-------------Factory anchor peer update—-----------"
-
+```
+#### —-------------Factory anchor peer update—-----------"
+```bash
 peer channel fetch config ${PWD}/channel-artifacts/config_block.pb -o localhost:7050 --ordererTLSHostnameOverride orderer.supplychain.com -c $CHANNEL_NAME --tls --cafile $ORDERER_CA
 
 cd channel-artifacts
@@ -83,25 +81,26 @@ configtxlator proto_encode --input config_update_in_envelope.json --type common.
 cd ..
 
 peer channel update -f ${PWD}/channel-artifacts/config_update_in_envelope.pb -c $CHANNEL_NAME -o localhost:7050  --ordererTLSHostnameOverride orderer.supplychain.com --tls --cafile $ORDERER_CA
+```
 
-#—---------------package chaincode—-------------
-
+#### —---------------package chaincode—-------------
+```bash
 peer lifecycle chaincode package supplychain.tar.gz --path ${PWD}/../Chaincode/ --lang golang --label supplychain_1.0
-
-#—---------------install chaincode in Factory peer—-------------
-
+```
+#### —---------------install chaincode in Factory peer—-------------
+```bash
 peer lifecycle chaincode install supplychain.tar.gz
 
 peer lifecycle chaincode queryinstalled
 
 export CC_PACKAGE_ID=$(peer lifecycle chaincode calculatepackageid supplychain.tar.gz)
-
-#---------------Approve chaincode in Factory peer—-------------
-
+```
+#### ---------------Approve chaincode in Factory peer—-------------
+```bash
 peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.supplychain.com --channelID $CHANNEL_NAME --name supplychain --version 1.0 --collections-config ../Chaincode/collection.json --package-id $CC_PACKAGE_ID --sequence 1 --tls --cafile $ORDERER_CA --waitForEvent
-
+```
 **************** peer0_Logistics terminal *****************
-
+```bash
 export FABRIC_CFG_PATH=./peercfg
 export CHANNEL_NAME=supplychannel
 export CORE_PEER_LOCALMSPID=LogisticsMSP 
@@ -114,15 +113,15 @@ export FACTORY_PEER_TLSROOTCERT=${PWD}/organizations/peerOrganizations/factory.s
 export LOGISTICS_PEER_TLSROOTCERT=${PWD}/organizations/peerOrganizations/logistics.supplychain.com/peers/peer0.logistics.supplychain.com/tls/ca.crt
 export DEPOT_PEER_TLSROOTCERT=${PWD}/organizations/peerOrganizations/depot.supplychain.com/peers/peer0.depot.supplychain.com/tls/ca.crt
 export HQ_PEER_TLSROOTCERT=${PWD}/organizations/peerOrganizations/HQ.supplychain.com/peers/peer0.HQ.supplychain.com/tls/ca.crt
-
-—------------ Join peer to the channel ---------------
-
+```
+#### —------------ Join peer to the channel ---------------
+```bash
 peer channel join -b ./channel-artifacts/$CHANNEL_NAME.block
 
 peer channel list
-
-#—-------------Logistics anchor peer update—-----------"
-
+```
+#### —-------------Logistics anchor peer update—-----------
+```bash
 peer channel fetch config ${PWD}/channel-artifacts/config_block.pb -o localhost:7050 --ordererTLSHostnameOverride orderer.supplychain.com -c $CHANNEL_NAME --tls --cafile $ORDERER_CA
 
 cd channel-artifacts
@@ -144,22 +143,22 @@ configtxlator proto_encode --input config_update_in_envelope.json --type common.
 cd ..
 
 peer channel update -f ${PWD}/channel-artifacts/config_update_in_envelope.pb -c $CHANNEL_NAME -o localhost:7050  --ordererTLSHostnameOverride orderer.supplychain.com --tls --cafile $ORDERER_CA
-
-#—---------------install chaincode in Logistics peer—-------------"
-
+```
+#### —---------------install chaincode in Logistics peer—-------------"
+```bash
 peer lifecycle chaincode install supplychain.tar.gz
 
 peer lifecycle chaincode queryinstalled
-
-—---------------Approve chaincode in Logistics peer—-------------"
-
+```
+#### —---------------Approve chaincode in Logistics peer—-------------"
+```bash
 export CC_PACKAGE_ID=$(peer lifecycle chaincode calculatepackageid supplychain.tar.gz)
 
 peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.supplychain.com --channelID $CHANNEL_NAME --name supplychain --version 1.0 --collections-config ../Chaincode/collection.json --package-id $CC_PACKAGE_ID --sequence 1 --tls --cafile $ORDERER_CA --waitForEvent
 
-
+```
 **************** peer0_Depot terminal ******************
-
+```bash
 export FABRIC_CFG_PATH=./peercfg
 export CHANNEL_NAME=supplychannel 
 export CORE_PEER_LOCALMSPID=DepotMSP 
@@ -172,17 +171,17 @@ export FACTORY_PEER_TLSROOTCERT=${PWD}/organizations/peerOrganizations/factory.s
 export LOGISTICS_PEER_TLSROOTCERT=${PWD}/organizations/peerOrganizations/logistics.supplychain.com/peers/peer0.logistics.supplychain.com/tls/ca.crt
 export DEPOT_PEER_TLSROOTCERT=${PWD}/organizations/peerOrganizations/depot.supplychain.com/peers/peer0.depot.supplychain.com/tls/ca.crt
 export HQ_PEER_TLSROOTCERT=${PWD}/organizations/peerOrganizations/HQ.supplychain.com/peers/peer0.HQ.supplychain.com/tls/ca.crt
-
-—-------------- Join peer to the channel ----------------------
-
+```
+#### —-------------- Join peer to the channel ----------------------
+```bash
 peer channel join -b ./channel-artifacts/$CHANNEL_NAME.block
 
 peer channel list
- "—-------------Depot anchor peer update—-----------"
-
+ ```
+#### —-------------Depot anchor peer update—-----------
+```bash
 peer channel fetch config ${PWD}/channel-artifacts/config_block.pb -o localhost:7050 --ordererTLSHostnameOverride orderer.supplychain.com -c $CHANNEL_NAME --tls --cafile $ORDERER_CA
  
-
 cd channel-artifacts
 
 configtxlator proto_decode --input config_block.pb --type common.Block --output config_block.json
@@ -205,20 +204,19 @@ peer channel update -f ${PWD}/channel-artifacts/config_update_in_envelope.pb -c 
  
 
 peer channel getinfo -c $CHANNEL_NAME
-
- "—---------------install chaincode in Depot peer—-------------"
-
+```
+#### —---------------install chaincode in Depot peer—-------------
+```bash
 peer lifecycle chaincode install supplychain.tar.gz
- 
 
 peer lifecycle chaincode queryinstalled
-
- "—---------------Approve chaincode in Depot peer—-------------"
-
+```
+#### —---------------Approve chaincode in Depot peer—-------------
+```bash
 peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.supplychain.com --channelID $CHANNEL_NAME --name supplychain --version 1.0 --collections-config ../Chaincode/collection.json --package-id $CC_PACKAGE_ID --sequence 1 --tls --cafile $ORDERER_CA --waitForEvent
-
+```
 **************** peer0_HQ terminal ******************
-
+```bash
 export FABRIC_CFG_PATH=./peercfg
 export CHANNEL_NAME=supplychannel 
 export CORE_PEER_LOCALMSPID=HQMSP 
@@ -231,17 +229,16 @@ export FACTORY_PEER_TLSROOTCERT=${PWD}/organizations/peerOrganizations/factory.s
 export LOGISTICS_PEER_TLSROOTCERT=${PWD}/organizations/peerOrganizations/logistics.supplychain.com/peers/peer0.logistics.supplychain.com/tls/ca.crt
 export DEPOT_PEER_TLSROOTCERT=${PWD}/organizations/peerOrganizations/depot.supplychain.com/peers/peer0.depot.supplychain.com/tls/ca.crt
 export HQ_PEER_TLSROOTCERT=${PWD}/organizations/peerOrganizations/HQ.supplychain.com/peers/peer0.HQ.supplychain.com/tls/ca.crt
-
-—-------------- Join peer to the channel ----------------------
-
+```
+#### —-------------- Join peer to the channel ----------------------
+```bash
 peer channel join -b ./channel-artifacts/$CHANNEL_NAME.block
 
 peer channel list
-
-"—-------------HQ anchor peer update—-----------"
-
-peer channel fetch config ${PWD}/channel-artifacts/config_block.pb -o localhost:7050 --ordererTLSHostnameOverride orderer.supplychain.com -c $CHANNEL_NAME --tls --cafile $ORDERER_CA
- 
+```
+#### —-------------HQ anchor peer update—-----------
+```bash
+peer channel fetch config ${PWD}/channel-artifacts/config_block.pb -o localhost:7050 --ordererTLSHostnameOverride orderer.supplychain.com -c $CHANNEL_NAME --tls --cafile $ORDERER_CA 
 
 cd channel-artifacts
 
@@ -265,32 +262,32 @@ peer channel update -f ${PWD}/channel-artifacts/config_update_in_envelope.pb -c 
  
 
 peer channel getinfo -c $CHANNEL_NAME
-
-"—---------------install chaincode in HQ peer—-------------"
-
+```
+#### —---------------install chaincode in HQ peer—-------------
+```bash
 peer lifecycle chaincode install supplychain.tar.gz
- 
 
 peer lifecycle chaincode queryinstalled
-
-"—---------------Approve chaincode in HQ peer—-------------"
-
+```
+#### —---------------Approve chaincode in HQ peer—-------------
+```bash
 peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.supplychain.com --channelID $CHANNEL_NAME --name supplychain --version 1.0 --collections-config ../Chaincode/collection.json --package-id $CC_PACKAGE_ID --sequence 1 --tls --cafile $ORDERER_CA --waitForEvent
- 
-
-"—---------------Commit chaincode in HQ peer—-------------"
-
+ ```
+#### —---------------Commit chaincode in HQ peer—-------------
+```bash
 peer lifecycle chaincode checkcommitreadiness --channelID $CHANNEL_NAME --name supplychain --version 1.0 --sequence 1 --collections-config ../Chaincode/collection.json --tls --cafile $ORDERER_CA --output json
 
 peer lifecycle chaincode commit -o localhost:7050 --ordererTLSHostnameOverride orderer.supplychain.com --channelID $CHANNEL_NAME --name supplychain --version 1.0 --sequence 1 --collections-config ../Chaincode/collection.json --tls --cafile $ORDERER_CA --peerAddresses localhost:7051 --tlsRootCertFiles $FACTORY_PEER_TLSROOTCERT --peerAddresses localhost:9051 --tlsRootCertFiles $LOGISTICS_PEER_TLSROOTCERT --peerAddresses localhost:11051 --tlsRootCertFiles $DEPOT_PEER_TLSROOTCERT --peerAddresses localhost:12051 --tlsRootCertFiles $HQ_PEER_TLSROOTCERT
 
 peer lifecycle chaincode querycommitted --channelID $CHANNEL_NAME --name supplychain --cafile $ORDERER_CA
+```
 
-
-##Now, the network is ready with the chaincode installed and deployed over the network. All the four organizations are running in four terminals.. Now execute the following commands to invoke and query the chaincode.
+#### Now, the network is ready with the chaincode installed and deployed.
+#### All the four organizations are running in four terminals.. Now execute the following commands to invoke and query the chaincode.
 
 **************** Factory terminal ********************
-xport COMPOSITION=$(echo -n "Powder,Explosives" | base64 | tr -d \\n)
+```bash
+export COMPOSITION=$(echo -n "Powder,Explosives" | base64 | tr -d \\n)
 export INSPECTION=$(echo -n "Passed" | base64 | tr -d \\n)
 export SERIALS=$(echo -n "1001-1009" | base64 | tr -d \\n)
 
@@ -393,55 +390,61 @@ peer chaincode invoke \
   --peerAddresses localhost:12051 --tlsRootCertFiles $HQ_PEER_TLSROOTCERT \
   -c '{"function":"CreateBatch","Args":["Batch-006","Fertilizer","3000","2025-04-15","2030-07-01","CREATED"]}' \
   --transient "{\"composition\":\"$COMPOSITION\",\"inspection\":\"$INSPECTION\",\"serials\":\"$SERIALS\"}"
-
--------------ReadBatchBoth----------
+```
+#### -------------ReadBatchBoth----------
+```bash
 peer chaincode query   -C $CHANNEL_NAME   -n supplychain   -c '{"function":"ReadBatchBoth","Args":["Batch-001"]}'
 
 peer chaincode query   -C $CHANNEL_NAME   -n supplychain   -c '{"function":"ReadBatchBoth","Args":["Batch-002"]}'
-
----------------ReadAllBatches---------
-
+```
+#### ---------------ReadAllBatches---------
+```bash
 peer chaincode query   -C $CHANNEL_NAME   -n supplychain   -c '{"Args":["ReadAllBatches"]}'
-
+```
 
 **************** Logistics terminal ********************
 
-# ---------- Transfer Batch-001 ----------
+#### ---------- Transfer Batch-001 ----------
+```bash
 export ROUTE=$(echo -n "Route-A" | base64 | tr -d \\n)
 export CONVOY=$(echo -n "CONVOY-101" | base64 | tr -d \\n)
 export TRANSPORTER=$(echo -n "Transporter Alpha" | base64 | tr -d \\n)
 
 
 peer chaincode invoke   -o localhost:7050   --ordererTLSHostnameOverride orderer.supplychain.com   --tls   --cafile "$ORDERER_CA"   -C "$CHANNEL_NAME"   -n supplychain   --peerAddresses localhost:7051 --tlsRootCertFiles "$FACTORY_PEER_TLSROOTCERT"   --peerAddresses localhost:9051 --tlsRootCertFiles "$LOGISTICS_PEER_TLSROOTCERT"   --peerAddresses localhost:11051 --tlsRootCertFiles "$DEPOT_PEER_TLSROOTCERT"   --peerAddresses localhost:12051 --tlsRootCertFiles "$HQ_PEER_TLSROOTCERT"   -c '{"function":"LogisticsContract:TransferBatch","Args":["Batch-001","FactoryMSP","DepotMSP"]}'   --transient "{\"route\":\"$ROUTE\",\"convoyID\":\"$CONVOY\",\"transporter\":\"$TRANSPORTER\"}"
-
-# ---------- Transfer Batch-002 ----------
+```
+#### ---------- Transfer Batch-002 ----------
+```bash
 export ROUTE=$(echo -n "Route-B" | base64 | tr -d \\n)
 export CONVOY=$(echo -n "CONVOY-102" | base64 | tr -d \\n)
 export TRANSPORTER=$(echo -n "Transporter Beta" | base64 | tr -d \\n)
 
 peer chaincode invoke   -o localhost:7050   --ordererTLSHostnameOverride orderer.supplychain.com   --tls   --cafile "$ORDERER_CA"   -C "$CHANNEL_NAME"   -n supplychain   --peerAddresses localhost:7051 --tlsRootCertFiles "$FACTORY_PEER_TLSROOTCERT"   --peerAddresses localhost:9051 --tlsRootCertFiles "$LOGISTICS_PEER_TLSROOTCERT"   --peerAddresses localhost:11051 --tlsRootCertFiles "$DEPOT_PEER_TLSROOTCERT"   --peerAddresses localhost:12051 --tlsRootCertFiles "$HQ_PEER_TLSROOTCERT"   -c '{"function":"LogisticsContract:TransferBatch","Args":["Batch-002","FactoryMSP","DepotMSP"]}'   --transient "{\"route\":\"$ROUTE\",\"convoyID\":\"$CONVOY\",\"transporter\":\"$TRANSPORTER\"}"
-
-# ---------- Transfer Batch-003 ----------
+```
+#### ---------- Transfer Batch-003 ----------
+```bash
 export ROUTE=$(echo -n "Route-C" | base64 | tr -d \\n)
 export CONVOY=$(echo -n "CONVOY-103" | base64 | tr -d \\n)
 export TRANSPORTER=$(echo -n "Transporter Alpha" | base64 | tr -d \\n)
 
 peer chaincode invoke   -o localhost:7050   --ordererTLSHostnameOverride orderer.supplychain.com   --tls   --cafile "$ORDERER_CA"   -C "$CHANNEL_NAME"   -n supplychain   --peerAddresses localhost:7051 --tlsRootCertFiles "$FACTORY_PEER_TLSROOTCERT"   --peerAddresses localhost:9051 --tlsRootCertFiles "$LOGISTICS_PEER_TLSROOTCERT"   --peerAddresses localhost:11051 --tlsRootCertFiles "$DEPOT_PEER_TLSROOTCERT"   --peerAddresses localhost:12051 --tlsRootCertFiles "$HQ_PEER_TLSROOTCERT"   -c '{"function":"LogisticsContract:TransferBatch","Args":["Batch-003","FactoryMSP","DepotMSP"]}'   --transient "{\"route\":\"$ROUTE\",\"convoyID\":\"$CONVOY\",\"transporter\":\"$TRANSPORTER\"}"
 
-
-#--------------GetRouteInfo----------------
+```
+#### --------------GetRouteInfo----------------
+```bash
 peer chaincode query   -C $CHANNEL_NAME   -n supplychain   -c '{"function":"LogisticsContract:GetRouteInfo","Args":["Batch-001"]}'
 
 peer chaincode query   -C $CHANNEL_NAME   -n supplychain   -c '{"function":"LogisticsContract:GetRouteInfo","Args":["Batch-002"]}'
 
 peer chaincode query   -C $CHANNEL_NAME   -n supplychain   -c '{"function":"LogisticsContract:GetRouteInfo","Args":["Batch-003"]}'
-
-#--------------GetAlRouteInfo----------------
-
+```
+#### --------------GetAlRouteInfo----------------
+```bash
 peer chaincode query   -C $CHANNEL_NAME   -n supplychain   -c '{"Args":["LogisticsContract:GetAllRouteInfo"]}'
-
+```
 
 **************** Depot terminal ********************
+```bash
 export QUANTITY=$(echo -n "500" | base64 | tr -d \\n)
 
 peer chaincode invoke   -o localhost:7050   --ordererTLSHostnameOverride orderer.supplychain.com   --tls   --cafile "$ORDERER_CA"   -C "$CHANNEL_NAME"   -n supplychain   --peerAddresses localhost:7051 --tlsRootCertFiles "$FACTORY_PEER_TLSROOTCERT"   --peerAddresses localhost:9051 --tlsRootCertFiles "$LOGISTICS_PEER_TLSROOTCERT"   --peerAddresses localhost:11051 --tlsRootCertFiles "$DEPOT_PEER_TLSROOTCERT"   --peerAddresses localhost:12051 --tlsRootCertFiles "$HQ_PEER_TLSROOTCERT"   -c '{"function":"DepotContract:ReceiveBatch","Args":["Batch-001"]}'   --transient "{\"quantity\":\"$QUANTITY\"}"
@@ -456,61 +459,68 @@ export QUANTITY=$(echo -n "500" | base64 | tr -d \\n)
 peer chaincode invoke   -o localhost:7050   --ordererTLSHostnameOverride orderer.supplychain.com   --tls   --cafile "$ORDERER_CA"   -C "$CHANNEL_NAME"   -n supplychain   --peerAddresses localhost:7051 --tlsRootCertFiles "$FACTORY_PEER_TLSROOTCERT"   --peerAddresses localhost:9051 --tlsRootCertFiles "$LOGISTICS_PEER_TLSROOTCERT"   --peerAddresses localhost:11051 --tlsRootCertFiles "$DEPOT_PEER_TLSROOTCERT"   --peerAddresses localhost:12051 --tlsRootCertFiles "$HQ_PEER_TLSROOTCERT"   -c '{"function":"DepotContract:ReceiveBatch","Args":["Batch-003"]}'   --transient "{\"quantity\":\"$QUANTITY\"}"
 
 peer chaincode query   -C $CHANNEL_NAME   -n supplychain   -c '{"Args":["DepotContract:ReadAllDepotBatches"]}'
-
+```
 **************** HQ terminal ********************
 
-----------------1.QueryFactoryBatchesByStatus--------------------
+#### ----------------1. QueryFactoryBatchesByStatus--------------------
+```bash
 peer chaincode query   -C $CHANNEL_NAME   -n supplychain   -c '{"function":"HQContract:QueryFactoryBatchesByStatus","Args":["CREATED"]}'
 
 peer chaincode query   -C $CHANNEL_NAME   -n supplychain   -c '{"function":"HQContract:QueryFactoryBatchesByStatus","Args":["In-Transit"]}'
 
 peer chaincode query   -C $CHANNEL_NAME   -n supplychain   -c '{"function":"HQContract:QueryFactoryBatchesByStatus","Args":["Received"]}'
-
-----------------2.QueryBatchesByBatchID--------------------
+```
+#### ----------------2. QueryBatchesByBatchID--------------------
+```bash
 peer chaincode query   -C $CHANNEL_NAME   -n supplychain   -c '{"function":"HQContract:QueryBatchesByBatchID","Args":["Batch-001"]}'
 
 peer chaincode query   -C $CHANNEL_NAME   -n supplychain   -c '{"function":"HQContract:QueryBatchesByBatchID","Args":["Batch-002"]}'
-
-----------------3.QueryAllPublicBatches--------------------
-
+```
+#### ----------------3. QueryAllPublicBatches--------------------
+```bash
 peer chaincode query   -C $CHANNEL_NAME   -n supplychain   -c '{"Args":["HQContract:QueryAllPublicBatches"]}'
-
-----------------4.GetBatchHistoryPublic--------------------
-
+```
+#### ----------------4. GetBatchHistoryPublic--------------------
+```bash
 peer chaincode query   -C $CHANNEL_NAME   -n supplychain   -c '{"function":"HQContract:GetBatchHistoryPublic","Args":["Batch-002"]}'
-
-----------------5.GetBatchesWithPagination (Quantity can't be used as selector)------------------
-
+```
+#### ----------------5. GetBatchesWithPagination (Quantity can't be used as selector)------------------
+```bash
 peer chaincode query   -C $CHANNEL_NAME   -n supplychain   -c '{"function":"HQContract:GetBatchesWithPagination","Args":["status","CREATED","5",""]}'
 
 peer chaincode query   -C $CHANNEL_NAME   -n supplychain   -c '{"function":"HQContract:GetBatchesWithPagination","Args":["type","Steel Rods","5",""]}'
 
 peer chaincode query   -C $CHANNEL_NAME   -n supplychain   -c '{"function":"HQContract:GetBatchesWithPagination","Args":["expiryDate","2030-07-01","5",""]}'
-
-----------------6.QueryPublicBatchesByRange (Only Show Batch Public Details)--------------------
-
+```
+#### ----------------6.QueryPublicBatchesByRange (Only Show Batch Public Details)--------------------
+```bash
 peer chaincode query   -C $CHANNEL_NAME   -n supplychain   -c '{"function":"HQContract:QueryPublicBatchesByRange","Args":["BATCH-001","BATCH-006"]}'
+```
 
-## TO stop the network:
+#### To stop the network:
+```bash
 ./stopSupplyNetwork.sh
+```
+#### UI component is exist for only Factory organization .i.e. only createBatch and readBatchBoth functionalities are working in UI. It will be completed in next version
 
 
-
-##UI component is exist for only Factory organization .i.e. only createBatch and readBatchBoth functionalities are working in UI. It will be completed in next version
-
-
-#To run the project:
-1. Run the following in the ubuntu terminal ( from SC_Network)
+### To run the project:
+1. Run the following in the ubuntu terminal (from SC_Network)
+```bash
+cd SC_Network
 ./startSupplyNetwork.sh
-
-2. Go inside the Supply-App folder and run the following command in terminal-
+```
+3. Go inside the Supply-App folder and run the following command in terminal-
+```bash
 go run .
-
-## Open the link : localhost:3001 in browser
-
+```
+#### Open the link in browser
+```bash
+localhost:3001
+```
 3. To stop the network, run the following:
+```bash
 ./stopSupplyNetwork.sh
-
-
+```
 
 
